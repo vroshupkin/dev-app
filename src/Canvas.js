@@ -1,12 +1,13 @@
-import { render } from '@testing-library/react';
 import React, { useState, useEffect, useRef } from 'react';
+import { point, vector } from "./graph_primitive"
 
-// TODO Написать фунукцию для прорисовки линии
+// TODO Написать фунукцию для прорисовки линии: draw_line(p_1, p_2)
 // TODO Оси написать с использование функции прорисовки линии по 2 точкам
-/* IDEA сделать объект камера
+/* IDEA сделать объект - камера
     1. Координаты
     2. Ширина, высота 
 */
+
 function Row(props){
     const flex_style = {
         "display"       : 'flex',
@@ -33,58 +34,21 @@ function Row(props){
     )
 }
 
+function canvasDrawLine(ctx, p1, p2){
+    ctx.beginPath();
+    ctx.moveTo(p1.x, p1.y);
+    ctx.lineTo(p2.x, p2.y);   
+    ctx.closePath();
+    ctx.stroke();
+}
 
 // 1. Вычисляет шаг по Х
 // 2. Вычисляет шаг по Y
 // TODO Сделать метод изменения количества линий
 // TODO сделать метод смещения сетки по X и Y
 
-class point{
-    x;
-    y;
-    constructor(x, y){
-        this.x = x;
-        this.y = y;
-    }
-}
-
-class workingArea{
-    #w; #h; #z      // width, height, zoom
-    #globalStartPoint;
-    #workingAreaPoing;
-
-    #globalPoints;
-
-    constructor(width, heigth, zoom, globalStartPoint){
-        this.#w = width;
-        this.#h = heigth;
-        this.#z = zoom;
-        this.#globalStartPoint = globalStartPoint;
-
-        this.#globalPoints = [
-            new point(globalStartPoint[0],                   globalStartPoint[1]),
-            new point(globalStartPoint[0] + width * zoom,    globalStartPoint[1]),
-            new point(globalStartPoint[0] + width * zoom,    globalStartPoint[1] + heigth * zoom),
-            new point(globalStartPoint[0],                   globalStartPoint[1] + heigth * zoom)
-        ]
-    }
-}
 
 // IDEA может быть хорошим примитивом
-class rect{
-    #width
-    #height
-    #start_point
-
-    constructor(width, height, start_point){
-        this.#width = width
-        this.#height = height
-        this.#start_point = start_point
-    }
-
-    
-
-}
 
 class gridModel{
     // Step scale
@@ -97,7 +61,6 @@ class gridModel{
     #zoom;
     
     constructor(width, height, origin, zoom){
-        // console.log("Constructor call - gridModel")  [debug]
         this.#width = width;
         this.#height = height;
         this.#origin = origin;
@@ -105,6 +68,8 @@ class gridModel{
 
         this._calcStepX(10);
         this._calcStepY(10);
+
+        // console.log("Constructor call - gridModel")  [debug]
     }
 
     _calcStepX(n){
@@ -124,13 +89,12 @@ class gridModel{
         if(start_x <= 0 && end_x >= 0){
             ctx.strokeStyle = "#008000";
             const ratio = start_x / this.#width
-            //console.log("%", ratio)
             
-            ctx.beginPath();
-            ctx.moveTo(-ratio * this.#width, 0);
-            ctx.lineTo(-ratio * this.#width, this.#height)
-            ctx.closePath()
-            ctx.stroke()
+            const p1 = new point(-ratio * this.#width, 0)
+            const p2 = new point(-ratio * this.#width, this.#height)
+            canvasDrawLine(ctx, p1, p2)
+
+            //console.log("%", ratio)
         }
 
         // X AXIS
@@ -139,16 +103,15 @@ class gridModel{
         if(start_y <= 0 && end_y >= 0){
             ctx.strokeStyle = "#FF2D00";
             const ratio = start_y / this.#height
-            console.log("%", ratio)
+            
+            const p3 = new point(0, -ratio * this.#height)
+            const p4 = new point(this.#width, -ratio * this.#height)
+            canvasDrawLine(ctx, p3, p4)
+
+            // console.log("%", ratio)
             // console.log("p1 =", 0, -ratio * this.#height)
             // console.log("p2 =", this.#width-100, -ratio * this.#height)
             
-            
-            ctx.beginPath();
-            ctx.moveTo(0, -ratio * this.#height);
-            ctx.lineTo(this.#width, -ratio * this.#height)
-            ctx.closePath()
-            ctx.stroke()
         }
     }
 
@@ -161,11 +124,14 @@ class gridModel{
 
         var x = this.#origin[0] % this.step_x;
         while(x < this.#width){
-            ctx.beginPath();
-            ctx.moveTo(x, 0);
-            ctx.lineTo(x, this.#height);   
-            ctx.closePath();
-            ctx.stroke();
+            const p1 = new point(x, 0)
+            const p2 = new point(x, this.#height)
+            canvasDrawLine(ctx, p1, p2)
+            // ctx.beginPath();
+            // ctx.moveTo(x, 0);
+            // ctx.lineTo(x, this.#height);   
+            // ctx.closePath();
+            // ctx.stroke();
             
             // X-axis
             const x_text = Number((x + this.#origin[0] / this.#zoom)).toString();
@@ -177,11 +143,15 @@ class gridModel{
 
         var y = this.#origin[1] % this.step_y;
         while(y < this.#height){
-            ctx.beginPath();
-            ctx.moveTo(0, y);
-            ctx.lineTo(this.#width, y);   
-            ctx.closePath();
-            ctx.stroke();
+            const p1 = new point(0, y)
+            const p2 = new point(this.#width, y)
+            canvasDrawLine(ctx, p1, p2)
+
+            // ctx.beginPath();
+            // ctx.moveTo(0, y);
+            // ctx.lineTo(this.#width, y);   
+            // ctx.closePath();
+            // ctx.stroke();
 
             // Y-axis 
             const y_text = Number(- (y + this.#origin[1]) / this.#zoom).toString();
@@ -200,6 +170,8 @@ class gridModel{
     2. Выбор ширины линии
     3. Выбор типа линии (сплошная, прерывистая) 
 */
+
+
 class dataLine{
     #data = []
     #scale = 1
@@ -215,7 +187,7 @@ class dataLine{
         this.#origin = origin
         this.#zoom = zoom
 
-        console.log(this.#origin )
+        // console.log(this.#origin )
     }
 
     draw(ctx){
@@ -234,16 +206,10 @@ class dataLine{
             const end_point_x   =    this.#zoom * this.#scale * this.#data[0][i+1] - this.#origin[0];
             const end_point_y   = - (this.#zoom * this.#scale * this.#data[1][i+1] + this.#origin[1]);
             
-            // console.log(i)
-            // console.log("(", start_point_x, ",", end_point_x, ")");
-            // console.log("(", start_point_y, ",", end_point_y, ")");
-            
+            const p1 = new point(start_point_x, start_point_y)
+            const p2 = new point(end_point_x, end_point_y)
 
-            ctx.beginPath();
-            ctx.moveTo(start_point_x, start_point_y);
-            ctx.lineTo(end_point_x, end_point_y);   
-            ctx.closePath();
-            ctx.stroke();
+            canvasDrawLine(ctx, p1, p2)
         }
     }
     
@@ -252,113 +218,76 @@ class dataLine{
 }
 
 
-/* TODO
-    1. В общей программе сделать контейнер для линий
-    2. 
-*/
+const graph_style = {
+    buttons_flex:{
+        "display"       : "flex",
+        "flex-direction": "row"
+    },
+    canvas_style:{
+        "border"        : "1px solid black",
+    }
+}
+
 function Graph(props){
     const width  = 700;
     const height = 400;
     const [cameraCoord,  setCameraCoord]   = useState([-0.1 * width, -0.9 * height])
     const [graphScale, setGraphScale] = useState(1)
     const [zoom, setZoom] = useState(1)
-    
-
-    
-    var data = [
-        ["x", 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31],
-        ["y", 3, 5, 6, 7, 8, 4, 5, 6, 2, 20, 30, 15, 19, 20, 25, 3, 5, 6, 7, 8, 4, 5, 6, 2, 20, 30, 15, 19, 20, 25]
-    ];
-
-    // const woking_area = new workingArea(width, height, zoom)         [del]
-    const data_line = new dataLine(data, graphScale, cameraCoord, zoom)
-    const grid = new gridModel(width, height, cameraCoord, zoom);
-
-    const buttons_flex = {
-        "display"       : "flex",
-        "flex-direction": "row"
-    };
-    const canvas_style = {
-        "border"        : "1px solid black",
-        //"width"         : width + "px",
-        //"height"        : height + "px"
-    }
-
-    const main_div_style = {
-        "width"     : width + "px"
-    }
+    const [coord, setCoord] = useState([0, 0])
 
     const canvasRef = useRef(null);
     
+    const data_line = new dataLine(props.data, graphScale, cameraCoord, zoom)    
+    const grid      = new gridModel(width, height, cameraCoord, zoom);
 
-    // function draw_vertical_line(x){
-    //     const ctx = canvasRef.current.getContext('2d')
-    //     ctx.clearRect(0, 0, width, height);
-
-    //     renderData(ctx);
-    //     grid.draw(ctx);
-    //     ctx.lineWidth = 0.3;
-    //     ctx.strokeStyle = "#47c736";
-
-        
-    //     ctx.beginPath();
-    //     ctx.moveTo(x, 0);
-    //     ctx.lineTo(x, height);   
-    //     ctx.closePath();
-    //     ctx.stroke();
-    // }
-
-
-    // Если []  - то изменяется после каждого рендера
-    // [res]    - подписывается на изменения res
+    const main_div_style = {"width": width + "px"}
 
     function render(){
-
-        // console.log("Render");                       [debug]
         const ctx = canvasRef.current.getContext('2d')
+        // Full clear zone
         ctx.clearRect(0, 0, width, height);
-
         grid.draw(ctx);
         data_line.draw(ctx);
 
     }
 
-    function logState(){
-        const out = {
-            graphScale: graphScale,
-            globalOrigin: cameraCoord,
-            zoom: zoom
-        }
-
-        console.log("States: ",out)
-    }
-
     useEffect(() => {
-        logState();
         render()
     }, [graphScale, zoom, cameraCoord])
 
+
     useEffect(() => {
-        
-        render()
-    }, [cameraCoord])
+        // console.log(coord)
+    }, [coord])
 
     return (
         <div style={main_div_style}>
             <canvas
+                width   = {width}
+                height  = {height}
+                style   = {graph_style.canvas_style}
+                ref     = {canvasRef}
+
+                // Зумирование
                 onWheel={e => {
-                    if(e.altKey)
-                        setCameraCoord([cameraCoord[0] + e.deltaY, cameraCoord[1]]);
-                    else
-                        setCameraCoord([cameraCoord[0], cameraCoord[1] + e.deltaY]);
+                    if(e.altKey)    setCameraCoord([cameraCoord[0] + e.deltaY, cameraCoord[1]]);
+                    else            setCameraCoord([cameraCoord[0], cameraCoord[1] + e.deltaY]);
                     }}
-                    
-                style={canvas_style}
-                width={width}
-                height={height}
-                ref={canvasRef}> 
+                
+                // Для отображения координат
+                onMouseMove= {e => {
+                    const start_p   = new point(0, 0);
+                    const coord_p   = new point(e.nativeEvent.layerX + cameraCoord[0], -1 * (e.nativeEvent.layerY + cameraCoord[1]));
+                    const vect      = new vector(start_p, coord_p);
+
+                    setCoord([coord_p.x, coord_p.y])
+                    }
+                }
+                > 
              </canvas>
-            <div width={width + "px"} style={buttons_flex}>
+            <div>x:{coord[0]}, y:{coord[1]}</div> 
+            <div width={width + "px"} style={graph_style.buttons_flex}>
                 <button onClick={() => {setGraphScale(graphScale + 1)}}>+</button>
                 <button onClick={() => {setGraphScale(graphScale - 1)}}>-</button>
                 <button onClick={() => {setCameraCoord([cameraCoord[0] + 1, cameraCoord[1]])}}>X+</button>
@@ -367,6 +296,8 @@ function Graph(props){
                 <button onClick={() => {setCameraCoord([cameraCoord[0], cameraCoord[1] - 1])}}>Y-</button>
                 <button onClick={() => {setZoom(zoom * 2)}}>Zoom x2</button>
                 <button onClick={() => {setZoom(zoom / 2)}}>Zoom /2</button>
+
+                
             </div>  
         </div>
     );

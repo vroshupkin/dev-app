@@ -1,39 +1,10 @@
 import React, { useState, useEffect, useRef} from 'react';
+import { vector, point } from '../graph_primitive';
 
 export default Knob
 
 const delay = (ms) => {
     return new Promise((resolve) => {setTimeout(() => resolve(), ms)})
-}
-
-class point{
-    x;
-    y;
-    constructor(x, y){
-        this.x = x;
-        this.y = y
-    }
-}
-
-class vector{
-    p_1;
-    p_2;
-    deg;
-    
-    constructor(p_1, p_2){
-        this.p_1 = p_1;
-        this.p_2 = p_2;
-        this.calDegree();
-    }
-
-    calDegree(){
-        const delta_x = this.p_2.x - this.p_1.x 
-        const delta_y = this.p_2.y - this.p_1.y
-    
-        const rad = Math.atan2(delta_y, delta_x)
-        this.deg = rad * (180 / Math.PI)
-        
-    }
 }
 
 function calcDegree(p_1, p_2){
@@ -61,6 +32,7 @@ function get_center_div(div){
 
 
 function Knob(){
+    const [size, setSize] = useState([50, 50]);
     const [pressClick, setPressClick] = useState(0)
     const refArrow = useRef();
     const refWrapper = useRef();
@@ -81,12 +53,11 @@ function Knob(){
     
     function mouse_move(e){
         if(pressClick){
+            const mouse_p  = new point(e.nativeEvent.offsetX, e.nativeEvent.offsetY)
+            const center_p = new point(25, 25)
 
-            // console.log("(", e.clientX, ", ", e.clientY, ")"); 
-            //const mouse_point = new point(e.clientX + refWrapper.current.offsetLeft, e.clientY + refWrapper.current.offsetTop)
-            const mouse_point = new point(e.clientX, e.clientY)
-            
-            const v_1 = new vector(get_center_div(refWrapper), mouse_point)      
+            console.log(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+            const v_1 = new vector(center_p, mouse_p)      
             console.log(v_1) 
         }
     }
