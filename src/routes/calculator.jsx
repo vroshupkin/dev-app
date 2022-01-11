@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 
-// Сделать алгоритм используя запоминание данных 
+// TODO Сделать алгоритм используя запоминание данных 
+// TODO Вывести в math
 function fact(x){
     if(x == 0) return 1;
 
@@ -12,7 +13,7 @@ function fact(x){
     return num
 }
 
-
+// TODO Вывести в math
 function sine(x, accr=10){
     let sum = 0;
     x %= Math.PI;
