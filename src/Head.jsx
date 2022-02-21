@@ -4,8 +4,8 @@ export default function Head(){
 
     const header_style = {
         "display"         :"flex",
-        "flex-direction"  : "row",
-        "justify-content" : "center",
+        "flexDirection"  : "row",
+        "justifyContent" : "center",
         "width"           : "100%",
         "gap": "50px"
     }
