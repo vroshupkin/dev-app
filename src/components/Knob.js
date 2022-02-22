@@ -32,15 +32,18 @@ function get_center_div(div){
 
 
 function Knob(){
-    const [size, setSize] = useState([50, 50]);
+    const [arrowCoord, setArrowCoord] = useState([0, 0]);
+    const [angle, setAngle] =  useState([0, 0]);
+    const [rotCount, setRotCount] = useState(0);
+
     const [pressClick, setPressClick] = useState(0)
     const refArrow = useRef();
     const refWrapper = useRef();
 
     function knob_event(e){
-        console.log(e)
+        // console.log(e)
         e.preventDefault();
-        console.log("(", e.clientX, ", ", e.clientY, ")");        
+        // console.log("(", e.clientX, ", ", e.clientY, ")");        
         setPressClick(1)
         
         // const mouse_point = new point(e.clientX, e.clientY)
@@ -53,21 +56,29 @@ function Knob(){
     
     function mouse_move(e){
         if(pressClick){
-            const mouse_p  = new point(e.nativeEvent.offsetX, e.nativeEvent.offsetY)
-            const center_p = new point(25, 25)
+            let rad = Math.atan2(e.nativeEvent.offsetY - 25, e.nativeEvent.offsetX - 25) + Math.PI;
+            rad /= 2 * Math.PI;
 
-            console.log(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
-            const v_1 = new vector(center_p, mouse_p)      
-            console.log(v_1) 
+            setAngle([angle[1], rad])
+            let delta = angle[1] - angle[0];
+            if(delta < -0.8)
+                setRotCount(rotCount + 1)
+            else if(delta > 0.8)
+                setRotCount(rotCount - 1)
+
+            setArrowCoord([e.nativeEvent.offsetX, e.nativeEvent.offsetY])
         }
     }
 
     function release_click(e){
+        // console.log(e)
+        console.log(`${e.nativeEvent.offsetX}, ${e.nativeEvent.offsetY}`)
+        
         setPressClick(0)
     }
 
     useEffect(() => {
-        console.log("press_click =", pressClick)
+        // console.log("press_click =", pressClick)
     }, [pressClick])
     
     
@@ -79,28 +90,29 @@ function Knob(){
         height: "50px"
     }
 
-    const arrow_style = {
-        background: "#CCC",
+    let arrow_style = {
+        position: "relative",
         width: "10px",
         height: "10px",
+
+        top: arrowCoord[1],
+        left: arrowCoord[0],
+        "pointer-events": "none",
         "border-radius": "10px",
-
-        position: "relative",
-        top: "3px",
-        left: "20px"
-        
-
-        
+        background: "#CCC",   
     }
 
 
     return(
-        <div ref={refWrapper} style = {wrapper_style}
-            onMouseDown = {knob_event}
-            onMouseUp = {release_click}
-            onMouseMove = {mouse_move}
-            >
-            <div ref={refArrow} style = {arrow_style}></div>
+        <div>
+            <div ref={refWrapper} style = {wrapper_style}
+                onMouseDown = {knob_event}
+                onMouseUp = {release_click}
+                onMouseMove = {mouse_move}
+                >
+                <div ref={refArrow} style = {arrow_style}></div>    
+            </div>
+            <div>{rotCount + angle[1]}</div>
         </div>
     )
 }
