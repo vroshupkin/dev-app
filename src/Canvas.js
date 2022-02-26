@@ -231,8 +231,8 @@ const graph_style = {
 function Graph(props){
     const width  = 700;
     const height = 400;
-    const [cameraCoord,  setCameraCoord]   = useState([-0.1 * width, -0.9 * height])
-    const [graphScale, setGraphScale] = useState(1)
+    const [cameraCoord,  setCameraCoord]    = useState([-0.1 * width, -0.9 * height])
+    const [graphScale, setGraphScale]       = useState(1)
     const [zoom, setZoom] = useState(1)
     const [coord, setCoord] = useState([0, 0])
 

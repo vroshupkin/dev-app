@@ -24,6 +24,8 @@ const border = {
   "border": "1px solid black"
 }
 
+const flex = {display: "flex"};
+
 function App() {
   return (
     <div>
@@ -31,7 +33,11 @@ function App() {
         <div>Hello convrter</div>
         <NumericConverter/>
         <Graph data={data}/>
-        <Knob/>
+        <div style={flex}>
+          <Knob/>
+          <Knob/>
+        </div>
+        
 
       </div>
     </div>
